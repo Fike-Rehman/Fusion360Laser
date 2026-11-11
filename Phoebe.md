@@ -32,20 +32,27 @@ Design priorities:
 - Durable
 - Easy to maintain
 - Easy to manufacture
-- Future expandable
 
 ---
 
 # Construction Material
 
+Revision: November 8, 2026 — full-width cedar construction, two roofs, side mounting, and replaceable entrance plate.
+
 Primary material:
 
-- 5 mm Baltic Birch plywood
+- Untreated solid Western Red Cedar, smooth on the exterior face.
+- Design thickness: **20.6375 mm (13/16 inch) provisional**, replacing the original 5 mm plywood.
+- Selected stock format: nominal 1 × 6 cedar, provisionally 5.5 inches (139.7 mm) wide.
+- No rip cuts or edge-glued panels. Use full board widths, crosscuts, angled crosscuts, drilling, and laser engraving.
+- Measure the purchased board and set the material-thickness parameter to its actual thickness before generating final dimensions or cutting parts.
+- Use this thickness for the walls, structural front, back, floor, and structural roof. Decorative roof thickness remains a separate parameter.
+- Cut structural panels with woodworking saws; use the Monport laser for exterior front engraving.
 
 Finish:
 
-- Exterior-grade finish
-- Decorative roof painted for contrast
+- Optional exterior-grade finish on exterior surfaces only; leave the nesting interior unfinished
+- Decorative roof material and color remain to be selected
 - Natural wood body
 
 ---
@@ -66,175 +73,64 @@ The design may eventually support additional bird species.
 
 ---
 
-# Roof Assembly
+# Roof System
 
-The roof is a multi-layer assembly.
+Two separate roofs, with an isolated ESP32-CAM compartment between them.
 
-From top to bottom:
+## Hidden Interior Roof
 
-1. Decorative sloped roof
-2. Hidden electronics cavity
-3. Structural flat roof
-4. Birdhouse walls
-5. Floor
+- Flat cedar ceiling closing the nesting cavity; not visible from outside.
+- Fits between the walls, using full-width 1 × 6 stock crosscut to length, like the floor.
+- Separates the birds from camera electronics; camera viewing opening and mounting details remain to be designed.
+- Thickness follows the structural cedar parameter.
+- Assembly clearances and attachment must accommodate wood movement without requiring rip cuts.
 
-The structural roof serves as the ceiling of the nesting chamber.
+## Visible Decorative Roof
 
-The decorative roof provides:
-
-- Weather protection
-- Premium appearance
-- Hidden joinery
-- Space for future electronics
-
----
-
-# Roof
-
-Style:
-
-Single sloped roof
-
-NOT:
-
-- Flat roof
-- Traditional peaked roof
-
-Characteristics:
-
-- Modern appearance
-- Approximately 10–15° slope (adjustable as required for electronics cavity)
-- Large front overhang
-- Side overhangs
-- Minimal rear overhang
-
-Roof overhang:
-
-Front:
-35–40 mm
-
-Sides:
-20–25 mm
-
-Rear:
-0–10 mm
-
----
-
-# Decorative Roof
-
-Purpose:
-
-- Premium appearance
-- Hide structural joints
-- Increase weather protection
-- Painted contrasting color
-
-Features:
-
-- Rounded corners
-- Small reveal around structural roof
-- Approximately 10–15 mm corner radius
-
-The decorative roof should be removable for servicing the electronics cavity.
-
----
-
-# Electronics Cavity
-
-The birdhouse shall be designed from the beginning to accommodate future electronics while maintaining proper nesting dimensions.
-
-Initial design target:
-
-- ESP32-CAM module
-
-Future possibilities:
-
-- Temperature sensor
-- Humidity sensor
-- Microphone
-- LED illumination
-- Battery pack
-- Solar charging
-- Additional sensors
-
-Requirements:
-
-- Completely hidden from outside
-- Isolated from nesting chamber
-- Accessible through service hatch
-- No exposed wiring
-- Ventilated
-- Weather resistant
-
----
-
-# Electronics Service Hatch
-
-The decorative roof shall include a concealed service hatch allowing access to the electronics cavity.
-
-Purpose:
-
-- Install or replace ESP32-CAM
-- Replace SD card
-- Route wiring
-- Perform maintenance
-
-Requirements:
-
-- Hidden from normal view
-- Weather resistant
-- Easily removable
-- Does not require opening the nesting chamber
-
----
-
-# Camera Support
-
-Reserve space for an optional camera.
-
-Preferred camera location:
-
-- Mounted within the electronics cavity
-- Looking downward into the nesting chamber
-
-Goals:
-
-- Entire nest visible
-- Camera completely hidden
-- No visible external modifications
-- No perch required
+- Single sloped roof, approximately 10–15°; not a traditional peaked roof.
+- Sheds rain and covers the camera compartment.
+- Material undecided: possible 3D-printed plastic, acrylic, or another suitable outdoor material.
+- Material thickness, weather resistance, fastening, and water-shedding details require validation after material selection.
+- Removable for camera maintenance, using discreet accessible fasteners.
+- Rounded corners; provisional corner radius 10–15 mm.
+- Compact overhangs rather than the original large roof: provisional front 20 mm, sides 10–15 mm, rear essentially flush.
+- Final overhangs remain subject to appearance and rain protection review in CAD.
+- Keep the rear clear of the post and mounting hardware.
+- Preserve clearance for the upward-sliding cleaning panel; check whether roof removal is needed for full panel withdrawal.
 
 ---
 
 # Front
 
-Double-layer construction.
+Solid cedar structural front with the smooth face outward for direct laser engraving.
 
-Structural front
-
-Decorative front
+A second decorative front layer is optional rather than required to hide finger joints. Final facade detailing remains to be selected.
 
 Advantages:
 
 - Premium appearance
 - Hidden joints
-- Decorative engraving
+- Decorative engraving possible
 - Better weather resistance
 
 ---
 
-# Entrance Hole
+# Entrance Hole and Replaceable Plate
 
-Approximately:
+- Entrance diameter: 28.575 mm (1⅛ inch), displayed as 28.6 mm.
+- Drill the full entrance through the cedar front; the plate does not replace the structural wood.
+- Position above the nesting floor at a species-appropriate height; final height remains to be set.
+- No perch.
 
-32 mm diameter
+Decorative entrance plate:
 
-Placement:
-
-Centered visually while maintaining recommended height above floor.
-
-No perch.
+- Laser-cut from the user's existing 3 mm acrylic.
+- Matching entrance opening, aligned with the cedar hole; smooth the opening edges.
+- Shape and color can coordinate with the visible roof; final outline remains undecided.
+- Attach with two decorative brass screws, using clearance holes in the acrylic and pilot holes in the cedar.
+- Keep screw tips out of the nesting cavity. Tighten gently; avoid clamping stresses that crack the acrylic.
+- No permanent adhesive: plate must be removable and replaceable if damaged.
+- Treat as decorative trim with limited protection, not a squirrel-proof guard. Acrylic can crack or be chewed; it is not equivalent to metal.
 
 ---
 
@@ -242,11 +138,25 @@ No perch.
 
 Floor:
 
-100–110 mm square
+Full-width 1 × 6 construction replaces the original approximately square cavity.
+
+With board width W = 139.7 mm and thickness T = 20.6375 mm:
+
+| Dimension | Formula | Provisional size |
+|---|---|---|
+| Internal width | W − 2T | 98.425 mm (3⅞ inches) |
+| Internal depth | W | 139.7 mm (5½ inches) |
+| Exterior body width | W | 139.7 mm |
+| Exterior body depth | W + 2T | 180.975 mm (7⅛ inches) |
+
+Front and back overlap the side edges. All wall panels retain the full stock width.
+Orient the floor and hidden roof with stock width along the house depth; crosscut their length to fit the internal width.
+These are geometric dimensions before assembly, drainage, and sliding-door clearances. Detail those clearances without introducing rip cuts.
+Recalculate the cavity from measured stock dimensions and review suitability before finalizing the cut list.
 
 Interior height:
 
-Follow chickadee recommendations.
+Per chickadee recommendations.
 
 Include:
 
@@ -254,21 +164,28 @@ Include:
 - Ventilation near roof
 - Drainage holes in floor
 
-The structural roof forms the ceiling of the nesting chamber.
-
 ---
 
-# Mounting
+# Mounting and Placement
 
-Designed specifically for mounting on a 4×4 post.
+- Attach the back of the house to the SIDE of a 4 × 4 post, not the top.
+- Typical post width is 88.9 mm (3½ inches); measure before finalizing hardware.
+- Center the approximately 139.7 mm-wide body on the post: approximately 25.4 mm extension on each side.
+- Body projects approximately 180.975 mm forward from its rear face, plus any mounting-bracket offset and front roof overhang.
+- Keep mounting offset and roof overhangs modest.
+- Prioritize easy installation: proposed separate bracket fixed to the post first, then hang the house and secure it against lifting or rocking with accessible retaining screws.
+- Final bracket geometry is undecided; keep fasteners discreet and independent of cleaning access, camera access, and drainage.
+- Use stainless steel structural mounting screws.
+- No post baffle, per owner preference. Squirrels can threaten eggs and nestlings; the acrylic entrance plate does not eliminate that risk.
 
-Back panel:
+Placement guidance discussed (not a confirmed installation location):
 
-- Large mounting area
-- Hidden screw locations
-- Stainless steel mounting screws
-
-Minimal rear roof overhang allows flush mounting.
+- Black-capped Chickadee nest-box height guidance: 5–15 feet above ground.
+- Practical starting point: approximately 6 feet to the nesting floor for maintenance access.
+- Prefer an east or southeast entrance if sheltered from local prevailing wind and driving rain.
+- Favor partial sunlight, morning sun and afternoon shade, near mature trees with an unobstructed approach.
+- Local shelter and exposure take priority over a fixed compass direction.
+- Reference: Cornell NestWatch placement guidance, https://nestwatch.org/learn/all-about-birdhouses/nest-box-placement/
 
 ---
 
@@ -284,7 +201,7 @@ Advantages:
 
 - Hidden
 - Weather resistant
-- Laser-cut friendly
+- Sized for solid cedar, with sliding clearance adjusted for seasonal movement
 - No hinges
 - Easy cleaning
 
@@ -298,9 +215,13 @@ Single brass screw near top.
 
 Primary goal:
 
-Hide visible finger joints whenever practical.
+Use concealed pocket-hole screws and exterior-rated waterproof wood glue for permanent wall joints.
 
-Structural finger joints are acceptable if hidden behind decorative panels.
+Finger joints are no longer part of this cedar construction.
+
+Select pocket-hole settings and screw length for the measured board thickness; verify on scrap cedar before assembly. Use screws suitable for outdoor cedar exposure.
+
+Do not glue the sliding clean-out panel. Detail the floor and roof attachments to allow drainage, maintenance, and seasonal wood movement.
 
 Exterior should appear clean and minimal.
 
@@ -312,8 +233,10 @@ Minimal hardware.
 
 Preferred:
 
-- Brass retaining screw
+- Brass screw for sliding panel
+- Two decorative brass screws for the replaceable acrylic entrance plate
 - Stainless steel mounting screws
+- Exterior-suitable pocket-hole screws for fixed structural joints
 
 No visible hinges.
 
@@ -323,7 +246,7 @@ No visible hinges.
 
 Natural wood body.
 
-Painted decorative roof.
+Decorative roof color and material to be selected; coordinate with the acrylic entrance plate.
 
 Possible future options:
 
@@ -335,9 +258,9 @@ Possible future options:
 
 # CAD Philosophy
 
-Everything shall be parametric.
+Everything should be parametric.
 
-Nothing shall use hard-coded dimensions.
+Nothing should use hard-coded dimensions.
 
 Changing one parameter should automatically regenerate the design.
 
@@ -345,19 +268,25 @@ Changing one parameter should automatically regenerate the design.
 
 # Initial Parameters
 
-## Material
+Material
 
-- Thickness
-- Kerf
-- Glue clearance
+- Structural cedar thickness: 20.6375 mm (13/16 inch) provisional; replace with measured board thickness
+- Stock width: 139.7 mm provisional; replace with measured width
+- Acrylic entrance plate thickness: 3 mm
+- Decorative roof thickness: separate parameter, to be confirmed
+- Joint and sliding clearances
+- Laser kerf: optional for future laser-cut decorative parts; not used to size saw-cut structural panels
 
-## House
+House
 
-- Width
-- Depth
-- Height
+- Interior cavity width
+- Interior cavity depth
+- Interior cavity height
+- Derive cavity and exterior dimensions from measured stock width, thickness, and overlapping butt-joint arrangement.
+- Preserve the no-rip/no-edge-gluing constraint; flag stock changes that make cavity dimensions unsuitable.
+- Interior height remains independently adjustable.
 
-## Roof
+Roof
 
 - Pitch
 - Front overhang
@@ -365,42 +294,34 @@ Changing one parameter should automatically regenerate the design.
 - Rear overhang
 - Corner radius
 
-## Entrance
+Entrance
 
-- Diameter
-- Height
+- Diameter: 28.575 mm
+- Height above nesting floor
+- Plate outline, thickness, screw spacing, and screw clearance
 
-## Ventilation
+Ventilation
 
 - Slot width
 - Slot count
 
-## Sliding Door
+Sliding Door
 
 - Clearance
 - Rail width
 - Rail depth
 
-## Mounting
+Mounting
 
 - Post size
 - Mounting hole spacing
-
-## Electronics
-
-- Enabled
-- Cavity height
-- Cavity width
-- Cavity depth
-- Camera opening
-- Camera offset
-- Service hatch size
-- Wire channel width
-- Ventilation openings
+- Bracket offset and retaining-screw access
 
 ---
 
 # Software Architecture
+
+Project Structure
 
 BirdHouse/
 
@@ -416,18 +337,22 @@ BirdHouse/
 
         material.py
 
-        panel.py
+        roof.py
+
         front.py
+
         back.py
+
         left_wall.py
+
         right_wall.py
+
         floor.py
 
-        roof.py
-        electronics.py
-
         joints.py
+
         assembly.py
+
         export.py
 
 ---
@@ -438,44 +363,33 @@ Material
 
 Responsible for:
 
-- Thickness
-- Kerf
-- Press-fit calculations
-
-Panel
-
-Base class responsible for:
-
-- Sketch creation
-- Extrusion
-- Common geometry
-- Joint interfaces
+- Measured structural thickness
+- Separate thicknesses for decorative parts
+- Joint clearances
+- Optional kerf calculations for laser-cut accessories; no press-fit finger joints in the cedar structure
 
 Roof
 
 Responsible for:
 
-- Structural roof
-- Decorative roof
-- Roof cavity
-- Overhangs
+- Hidden cedar ceiling and separate sloped outer roof geometry
+- Camera-compartment clearance and service access
+- Overhang
 - Corner radius
 
-Electronics
+Wall
 
 Responsible for:
 
-- Electronics cavity
-- Camera mounting
-- Service hatch
-- Wire routing
+- Basic wall geometry
 
 FrontWall
 
 Adds:
 
 - Entrance hole
-- Decorative front
+- Replaceable acrylic plate and brass screw locations
+- Exterior engraving area
 
 SlidingWall
 
@@ -513,43 +427,47 @@ Learn Fusion API
 
 Phase 3
 
-Develop reusable geometry utilities.
+Develop geometry utilities.
+
+Examples:
+
+draw_rectangle()
+
+draw_circle()
+
+rounded_rectangle()
+
+center_rectangle()
+
+offset_profile()
 
 Phase 4
 
-Generate floor.
+Generate the floor.
 
 Phase 5
 
-Develop generic panel class.
+Generate walls.
 
 Phase 6
 
-Generate walls.
+Generate the hidden cedar roof, camera compartment, and separate removable sloped outer roof.
 
 Phase 7
 
-Generate roof assembly.
+Generate butt-joint assembly geometry and concealed pocket-screw locations for the cedar construction.
 
 Phase 8
 
-Generate electronics cavity.
+Assemble complete birdhouse.
 
 Phase 9
 
-Generate joinery.
+Export engraving artwork/templates as SVG/DXF and generate dimensioned panel drawings or a cut list for saw cutting.
 
 Phase 10
 
-Assemble birdhouse.
-
-Phase 11
-
-Export SVG/DXF.
-
-Phase 12
-
-Prototype on laser cutter.
+Prototype cedar joinery on scrap, saw-cut the panels, test laser engraving on a cedar offcut, then assemble the birdhouse.
 
 ---
 

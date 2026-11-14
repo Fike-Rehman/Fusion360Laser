@@ -6,6 +6,7 @@ from pathlib import Path
 
 import adsk.core
 import adsk.fusion
+import math
 
 # Dimensions in millimeters.
 BOARD_WIDTH_MM = 139.7
@@ -15,6 +16,22 @@ INTERIOR_WIDTH_MM = BOARD_WIDTH_MM - 2 * MATERIAL_THICKNESS_MM
 INTERIOR_DEPTH_MM = BOARD_WIDTH_MM
 
 WALL_HEIGHT_MM = 220.0  # Temporary overall height from floor underside.
+
+ENTRANCE_DIAMETER_MM = 28.575
+ENTRANCE_CENTER_ABOVE_FLOOR_MM = 150.0
+
+ENTRANCE_PLATE_WIDTH_MM = 50.0
+ENTRANCE_PLATE_HEIGHT_MM = 50.0
+ENTRANCE_PLATE_THICKNESS_MM = 3.0
+
+ROOF_SLOPE_DEG = 12.0
+ROOF_THICKNESS_MM = 5.0
+ROOF_SIDE_OVERHANG_MM = 20.0
+ROOF_FRONT_OVERHANG_MM = 30.0
+ROOF_REAR_OVERHANG_MM = 0.0
+ROOF_FRONT_CORNER_RADIUS_MM = 12.0
+
+CAMERA_CLEARANCE_FRONT_MM = 30.0
 
 
 def run(_context):
@@ -42,201 +59,167 @@ def run(_context):
 
         primitives = module_from_spec(spec)
         spec.loader.exec_module(primitives)
-        draw_center_rectangle = primitives.draw_center_rectangle
+        create_panel = primitives.create_panel
+        cut_entrance_hole = primitives.cut_entrance_hole
 
         root = design.rootComponent
 
         # Remove previous Phoebe test geometry.
         for occurrence in list(root.occurrences):
-            if occurrence.component.name in ("Floor", "Left Wall", "Right Wall", "Back", "Front"):
+            if occurrence.component.name in (
+                "Floor", "Left Wall", "Right Wall",
+                "Back", "Front", "Interior Roof", "Entrance Plate", "Outer Roof"
+            ):
                 occurrence.deleteMe()
 
-        occurrence = root.occurrences.addNewComponent(
-            adsk.core.Matrix3D.create()
-        )
-        floor = occurrence.component
-        floor.name = "Floor"
-
-        floor_sketch = floor.sketches.add(floor.xYConstructionPlane)
-        floor_sketch.name = "Floor Sketch"
-        draw_center_rectangle(
-            floor_sketch,
-            INTERIOR_WIDTH_MM,
-            INTERIOR_DEPTH_MM,
+        floor = create_panel(
+            parent=root,
+            name="Floor",
+            width_mm=INTERIOR_WIDTH_MM,
+            depth_mm=INTERIOR_DEPTH_MM,
+            height_mm=MATERIAL_THICKNESS_MM,
         )
 
-        profile = floor_sketch.profiles.item(0)
-        thickness = adsk.core.ValueInput.createByString(
-            f"{MATERIAL_THICKNESS_MM} mm"
-        )
-        extrude = floor.features.extrudeFeatures.addSimple(
-            profile,
-            thickness,
-            adsk.fusion.FeatureOperations.NewBodyFeatureOperation,
-        )
-        if extrude is None:
-            raise RuntimeError("Fusion could not create the floor extrusion.")
-
-        extrude.name = "Floor Extrusion"
-
-        # Position the wall beside the floor, along the negative X edge.
-        wall_center_x_mm = -(
+        # Distance from the assembly center to each wall's center.
+        side_offset_mm = (
             INTERIOR_WIDTH_MM / 2 + MATERIAL_THICKNESS_MM / 2
         )
-
-        wall_transform = adsk.core.Matrix3D.create()
-        wall_transform.translation = adsk.core.Vector3D.create(
-            wall_center_x_mm / 10,  # Fusion coordinates use centimeters.
-            0,
-            0,
-        )
-
-        wall_occurrence = root.occurrences.addNewComponent(wall_transform)
-        left_wall = wall_occurrence.component
-        left_wall.name = "Left Wall"
-
-        # Draw the wall's narrow footprint, then extrude upward.
-        wall_sketch = left_wall.sketches.add(left_wall.xYConstructionPlane)
-        wall_sketch.name = "Left Wall Footprint"
-
-        draw_center_rectangle(
-            wall_sketch,
-            MATERIAL_THICKNESS_MM,
-            INTERIOR_DEPTH_MM,
-        )
-
-        wall_profile = wall_sketch.profiles.item(0)
-        wall_extrude = left_wall.features.extrudeFeatures.addSimple(
-            wall_profile,
-            adsk.core.ValueInput.createByString(f"{WALL_HEIGHT_MM} mm"),
-            adsk.fusion.FeatureOperations.NewBodyFeatureOperation,
-        )
-
-        if wall_extrude is None:
-            raise RuntimeError("Fusion could not create the left wall.")
-
-        wall_extrude.name = "Left Wall Extrusion"
-
-        # Position the right wall beside the positive X edge.
-        right_wall_center_x_mm = (
-            INTERIOR_WIDTH_MM / 2 + MATERIAL_THICKNESS_MM / 2
-        )
-
-        right_wall_transform = adsk.core.Matrix3D.create()
-        right_wall_transform.translation = adsk.core.Vector3D.create(
-            right_wall_center_x_mm / 10,
-            0,
-            0,
-        )
-
-        right_wall_occurrence = root.occurrences.addNewComponent(
-            right_wall_transform
-        )
-        right_wall = right_wall_occurrence.component
-        right_wall.name = "Right Wall"
-
-        right_wall_sketch = right_wall.sketches.add(
-            right_wall.xYConstructionPlane
-        )
-        right_wall_sketch.name = "Right Wall Footprint"
-
-        draw_center_rectangle(
-            right_wall_sketch,
-            MATERIAL_THICKNESS_MM,
-            INTERIOR_DEPTH_MM,
-        )
-
-        right_wall_profile = right_wall_sketch.profiles.item(0)
-        right_wall_extrude = right_wall.features.extrudeFeatures.addSimple(
-            right_wall_profile,
-            adsk.core.ValueInput.createByString(f"{WALL_HEIGHT_MM} mm"),
-            adsk.fusion.FeatureOperations.NewBodyFeatureOperation,
-        )
-
-        if right_wall_extrude is None:
-            raise RuntimeError("Fusion could not create the right wall.")
-
-        right_wall_extrude.name = "Right Wall Extrusion"
-
-        # Position the back beyond the rear edges of the side walls.
-        back_center_y_mm = (
+        end_offset_mm = (
             INTERIOR_DEPTH_MM / 2 + MATERIAL_THICKNESS_MM / 2
         )
 
-        back_transform = adsk.core.Matrix3D.create()
-        back_transform.translation = adsk.core.Vector3D.create(
-            0,
-            back_center_y_mm / 10,
-            0,
+        left_wall = create_panel(
+            parent=root,
+            name="Left Wall",
+            width_mm=MATERIAL_THICKNESS_MM,
+            depth_mm=INTERIOR_DEPTH_MM,
+            height_mm=WALL_HEIGHT_MM,
+            x_mm=-side_offset_mm,
         )
 
-        back_occurrence = root.occurrences.addNewComponent(back_transform)
-        back = back_occurrence.component
-        back.name = "Back"
-
-        back_sketch = back.sketches.add(back.xYConstructionPlane)
-        back_sketch.name = "Back Footprint"
-
-        draw_center_rectangle(
-            back_sketch,
-            BOARD_WIDTH_MM,
-            MATERIAL_THICKNESS_MM,
+        right_wall = create_panel(
+            parent=root,
+            name="Right Wall",
+            width_mm=MATERIAL_THICKNESS_MM,
+            depth_mm=INTERIOR_DEPTH_MM,
+            height_mm=WALL_HEIGHT_MM,
+            x_mm=side_offset_mm,
         )
 
-        back_profile = back_sketch.profiles.item(0)
-        back_extrude = back.features.extrudeFeatures.addSimple(
-            back_profile,
-            adsk.core.ValueInput.createByString(f"{WALL_HEIGHT_MM} mm"),
-            adsk.fusion.FeatureOperations.NewBodyFeatureOperation,
+        back = create_panel(
+            parent=root,
+            name="Back",
+            width_mm=BOARD_WIDTH_MM,
+            depth_mm=MATERIAL_THICKNESS_MM,
+            height_mm=WALL_HEIGHT_MM,
+            y_mm=end_offset_mm,
         )
 
-        if back_extrude is None:
-            raise RuntimeError("Fusion could not create the back.")
-
-        back_extrude.name = "Back Extrusion"
-
-        # Position the front beyond the front edges of the side walls.
-        front_center_y_mm = -(
-            INTERIOR_DEPTH_MM / 2 + MATERIAL_THICKNESS_MM / 2
+        front = create_panel(
+            parent=root,
+            name="Front",
+            width_mm=BOARD_WIDTH_MM,
+            depth_mm=MATERIAL_THICKNESS_MM,
+            height_mm=WALL_HEIGHT_MM,
+            y_mm=-end_offset_mm,
         )
 
-        front_transform = adsk.core.Matrix3D.create()
-        front_transform.translation = adsk.core.Vector3D.create(
-            0,
-            front_center_y_mm / 10,
-            0,
+        cut_entrance_hole(
+            component=front,
+            diameter_mm=ENTRANCE_DIAMETER_MM,
+            center_z_mm=(
+                MATERIAL_THICKNESS_MM + ENTRANCE_CENTER_ABOVE_FLOOR_MM
+            ),
+            thickness_mm=MATERIAL_THICKNESS_MM,
         )
 
-        front_occurrence = root.occurrences.addNewComponent(front_transform)
-        front = front_occurrence.component
-        front.name = "Front"
-
-        front_sketch = front.sketches.add(front.xYConstructionPlane)
-        front_sketch.name = "Front Footprint"
-
-        draw_center_rectangle(
-            front_sketch,
-            BOARD_WIDTH_MM,
-            MATERIAL_THICKNESS_MM,
+        interior_roof = create_panel(
+            parent=root,
+            name="Interior Roof",
+            width_mm=INTERIOR_WIDTH_MM,
+            depth_mm=INTERIOR_DEPTH_MM,
+            height_mm=MATERIAL_THICKNESS_MM,
+            z_mm=WALL_HEIGHT_MM - MATERIAL_THICKNESS_MM,
         )
 
-        front_profile = front_sketch.profiles.item(0)
-        front_extrude = front.features.extrudeFeatures.addSimple(
-            front_profile,
-            adsk.core.ValueInput.createByString(f"{WALL_HEIGHT_MM} mm"),
-            adsk.fusion.FeatureOperations.NewBodyFeatureOperation,
+        entrance_center_z_mm = (
+            MATERIAL_THICKNESS_MM + ENTRANCE_CENTER_ABOVE_FLOOR_MM
         )
 
-        if front_extrude is None:
-            raise RuntimeError("Fusion could not create the front.")
+        # Outside the front panel, toward negative Y.
+        plate_center_y_mm = -(
+            INTERIOR_DEPTH_MM / 2
+            + MATERIAL_THICKNESS_MM
+            + ENTRANCE_PLATE_THICKNESS_MM / 2
+        )
 
-        front_extrude.name = "Front Extrusion"
+        entrance_plate = create_panel(
+            parent=root,
+            name="Entrance Plate",
+            width_mm=ENTRANCE_PLATE_WIDTH_MM,
+            depth_mm=ENTRANCE_PLATE_THICKNESS_MM,
+            height_mm=ENTRANCE_PLATE_HEIGHT_MM,
+            y_mm=plate_center_y_mm,
+            z_mm=entrance_center_z_mm - ENTRANCE_PLATE_HEIGHT_MM / 2,
+        )
+
+        cut_entrance_hole(
+            component=entrance_plate,
+            diameter_mm=ENTRANCE_DIAMETER_MM,
+            center_z_mm=ENTRANCE_PLATE_HEIGHT_MM / 2,
+            thickness_mm=ENTRANCE_PLATE_THICKNESS_MM,
+        )
+
+        roof_angle = math.radians(ROOF_SLOPE_DEG)
+
+        body_depth_mm = (
+            INTERIOR_DEPTH_MM + 2 * MATERIAL_THICKNESS_MM
+        )
+
+        roof_width_mm = (
+            BOARD_WIDTH_MM + 2 * ROOF_SIDE_OVERHANG_MM
+        )
+
+        # Horizontal coverage, viewed from above.
+        roof_run_mm = (
+            body_depth_mm
+            + ROOF_FRONT_OVERHANG_MM
+            + ROOF_REAR_OVERHANG_MM
+        )
+
+        # Actual panel length must account for its slope.
+        roof_length_mm = roof_run_mm / math.cos(roof_angle)
+
+        roof_center_y_mm = (
+            ROOF_REAR_OVERHANG_MM - ROOF_FRONT_OVERHANG_MM
+        ) / 2
+
+        front_wall_y_mm = -body_depth_mm / 2
+
+        # Height of the roof underside at its center.
+        roof_center_z_mm = (
+            WALL_HEIGHT_MM
+            + CAMERA_CLEARANCE_FRONT_MM
+            + (roof_center_y_mm - front_wall_y_mm)
+            * math.tan(roof_angle)
+        )
+
+        outer_roof = create_panel(
+            parent=root,
+            name="Outer Roof",
+            width_mm=roof_width_mm,
+            depth_mm=roof_length_mm,
+            height_mm=ROOF_THICKNESS_MM,
+            y_mm=roof_center_y_mm,
+            z_mm=roof_center_z_mm,
+            rotation_x_deg=ROOF_SLOPE_DEG,
+            front_corner_radius_mm=ROOF_FRONT_CORNER_RADIUS_MM
+        )
 
         ui.messageBox(
-            f"Floor and four walls created successfully: "
-            f"{INTERIOR_WIDTH_MM:.3f} x "
-            f"{INTERIOR_DEPTH_MM:.3f} x "
-            f"{MATERIAL_THICKNESS_MM:.3f} mm"
+            "Birdhouse body, entrance plate, and both roofs "
+            "created successfully.\n"
+            f"Outer roof slope: {ROOF_SLOPE_DEG:.1f} degrees."
         )
 
     except Exception:
